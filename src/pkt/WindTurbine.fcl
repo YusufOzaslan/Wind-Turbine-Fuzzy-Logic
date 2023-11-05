@@ -1,4 +1,4 @@
-FUNCTION_BLOCK windTurbine
+FUNCTION_BLOCK WindTurbine
 
 VAR_INPUT
     windSpeed : REAL;
@@ -12,7 +12,7 @@ END_VAR
 
 FUZZIFY windSpeed
     TERM lowWindSpeed := (0, 1) (9, 0);
-    TERM mediumWindSpeed  := gauss 13 8;
+    TERM mediumWindSpeed := gauss 13 8;
     TERM highWindSpeed := TRAPE 15 20 25 25;
 END_FUZZIFY
 
@@ -24,18 +24,18 @@ END_FUZZIFY
 
 FUZZIFY wingLength
     TERM smallWing := (1, 1) (15, 0);
-    TERM mediumWing  := (8,0) (27) (45);
+    TERM mediumWing  := (8,0) (27,1) (45,0);
     TERM bigWing := (30, 0) (80, 1);
 END_FUZZIFY
 
 DEFUZZIFY energyProduced
     TERM veryLow := TRAPE 0 0 4000 25000;
     TERM Low := TRIAN 15000 175000 300000;
-    TERM middle := TRIAN 250000 1750000 2500000;
-    TERM High := TRIAN 2000000 4000000 7000000;
-    TERM veryHigh := TRAPE 4700000 1100000 1500000 1500000;
+    TERM middle := (250000,0) (1750000,1) (2500000,0); // TRIAN 250000 1750000 2500000;
+    TERM High := (2000000,0) (4000000,1) (7000000,0); // TRIAN 2000000 4000000 7000000;
+    TERM veryHigh := TRAPE 4700000 11000000 15000000 15000000;
     METHOD : COG;    
-    DEFAULT := 90; 
+    DEFAULT := 1750000; 
 END_DEFUZZIFY
 
 RULEBLOCK ruleBlock1
