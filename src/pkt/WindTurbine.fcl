@@ -11,31 +11,32 @@ VAR_OUTPUT
 END_VAR
 
 FUZZIFY windSpeed
-    TERM lowWindSpeed := (0, 1) (9, 0);
-    TERM mediumWindSpeed := gauss 13 8;
-    TERM highWindSpeed := TRAPE 15 20 25 25;
+    TERM lowWindSpeed := (0, 1) (11, 0);
+    TERM mediumWindSpeed := TRAPE 7 12 14 15;
+    TERM highWindSpeed := TRAPE 14 20 25 25;
 END_FUZZIFY
 
 FUZZIFY height
-    TERM smallTurbine := (5, 1) (30, 0);
-    TERM mediumTurbine  := (20,0) (55,1) (90,0);
-    TERM bigTurbine := (70, 0) (150, 1);
+    TERM smallTurbine := (5, 1) (40, 0);
+    TERM mediumTurbine  := (15,0) (50,1) (85,0);
+    TERM bigTurbine := (60, 0) (100, 1);
 END_FUZZIFY
 
 FUZZIFY wingLength
-    TERM smallWing := (1, 1) (15, 0);
-    TERM mediumWing  := (8,0) (27,1) (45,0);
-    TERM bigWing := (30, 0) (80, 1);
+    TERM smallWing := (1, 1) (8, 0);
+    TERM mediumWing  := (5,0) (13,1) (17,0);
+    TERM bigWing := (15, 0) (20, 1);
 END_FUZZIFY
 
 DEFUZZIFY energyProduced
-    TERM veryLow := TRAPE 0 0 4000 25000;
-    TERM Low := TRIAN 15000 175000 300000;
-    TERM middle := (250000,0) (1750000,1) (2500000,0); // TRIAN 250000 1750000 2500000;
-    TERM High := (2000000,0) (4000000,1) (7000000,0); // TRIAN 2000000 4000000 7000000;
-    TERM veryHigh := TRAPE 4700000 11000000 15000000 15000000;
+    TERM veryLow := (0, 1) (60, 0);
+    TERM Low := TRAPE 30 75 100 200;
+    TERM middle := TRAPE 100 300 400 500;
+    TERM High := TRAPE 400 600 700 900;
+    TERM veryHigh := TRAPE 800 1000 1100 1200;
+    TERM veryVeryHigh := TRAPE 1100 1300 1500 1500;
     METHOD : COG;    
-    DEFAULT := 1750000; 
+    DEFAULT := -1; 
 END_DEFUZZIFY
 
 RULEBLOCK ruleBlock1
@@ -43,59 +44,36 @@ RULEBLOCK ruleBlock1
 	ACT : MIN;	
 	ACCU : MAX;	
 
-	RULE 1 : IF windSpeed IS lowWindSpeed AND height IS smallTurbine AND wingLength IS smallWing THEN energyProduced IS veryLow;
+	RULE 1 : IF windSpeed IS lowWindSpeed AND wingLength IS smallWing AND height IS smallTurbine THEN energyProduced IS veryLow;
+	RULE 2 : IF windSpeed IS lowWindSpeed AND wingLength IS smallWing AND height IS mediumTurbine THEN energyProduced IS veryLow;
+	RULE 3 : IF windSpeed IS lowWindSpeed AND wingLength IS smallWing AND height IS bigTurbine THEN energyProduced IS Low;
+	RULE 4 : IF windSpeed IS lowWindSpeed AND wingLength IS mediumWing AND height IS smallTurbine THEN energyProduced IS veryLow;
+	RULE 5 : IF windSpeed IS lowWindSpeed AND wingLength IS mediumWing AND height IS mediumTurbine THEN energyProduced IS Low;
+	RULE 6 : IF windSpeed IS lowWindSpeed AND wingLength IS mediumWing AND height IS bigTurbine THEN energyProduced IS Low;
+	RULE 7 : IF windSpeed IS lowWindSpeed AND wingLength IS bigWing AND height IS smallTurbine THEN energyProduced IS Low;
+	RULE 8 : IF windSpeed IS lowWindSpeed AND wingLength IS bigWing AND height IS mediumTurbine THEN energyProduced IS Low;
+	RULE 9 : IF windSpeed IS lowWindSpeed AND wingLength IS bigWing AND height IS bigTurbine THEN energyProduced IS middle;
+	
+	RULE 10 : IF windSpeed IS mediumWindSpeed AND wingLength IS smallWing AND height IS smallTurbine THEN energyProduced IS middle;
+	RULE 11 : IF windSpeed IS mediumWindSpeed AND wingLength IS smallWing AND height IS mediumTurbine THEN energyProduced IS High;
+	RULE 12 : IF windSpeed IS mediumWindSpeed AND wingLength IS smallWing AND height IS bigTurbine THEN energyProduced IS High;	
+	RULE 13 : IF windSpeed IS mediumWindSpeed AND wingLength IS mediumWing AND height IS smallTurbine THEN energyProduced IS middle;
+	RULE 14 : IF windSpeed IS mediumWindSpeed AND wingLength IS mediumWing AND height IS mediumTurbine THEN energyProduced IS High;
+	RULE 15 : IF windSpeed IS mediumWindSpeed AND wingLength IS mediumWing AND height IS bigTurbine THEN energyProduced IS veryHigh;
+	RULE 16 : IF windSpeed IS mediumWindSpeed AND wingLength IS bigWing AND height IS smallTurbine THEN energyProduced IS High;
+	RULE 17 : IF windSpeed IS mediumWindSpeed AND wingLength IS bigWing AND height IS mediumTurbine THEN energyProduced IS veryHigh;
+	RULE 18 : IF windSpeed IS mediumWindSpeed AND wingLength IS bigWing AND height IS bigTurbine THEN energyProduced IS veryVeryHigh;
+	
+	RULE 19 : IF windSpeed IS highWindSpeed AND wingLength IS smallWing AND height IS smallTurbine THEN energyProduced IS veryLow;
+	RULE 20 : IF windSpeed IS highWindSpeed AND wingLength IS smallWing AND height IS mediumTurbine THEN energyProduced IS Low;
+	RULE 21 : IF windSpeed IS highWindSpeed AND wingLength IS smallWing AND height IS bigTurbine THEN energyProduced IS middle;
+	RULE 22 : IF windSpeed IS highWindSpeed AND wingLength IS mediumWing AND height IS smallTurbine THEN energyProduced IS Low;
+	RULE 23 : IF windSpeed IS highWindSpeed AND wingLength IS mediumWing AND height IS mediumTurbine THEN energyProduced IS middle;
+	RULE 24 : IF windSpeed IS highWindSpeed AND wingLength IS mediumWing AND height IS bigTurbine THEN energyProduced IS middle;
+	RULE 25 : IF windSpeed IS highWindSpeed AND wingLength IS bigWing AND height IS smallTurbine THEN energyProduced IS Low;
+	RULE 26 : IF windSpeed IS highWindSpeed AND wingLength IS bigWing AND height IS mediumTurbine THEN energyProduced IS middle;
+	RULE 27 : IF windSpeed IS highWindSpeed AND wingLength IS bigWing AND height IS bigTurbine THEN energyProduced IS High;
 
-	RULE 2 : IF windSpeed IS lowWindSpeed AND height IS smallTurbine AND wingLength IS mediumWing THEN energyProduced IS Low;
-
-	RULE 3 : IF windSpeed IS lowWindSpeed AND height IS smallTurbine AND wingLength IS bigWing THEN energyProduced IS veryLow;
-
-	RULE 4 : IF windSpeed IS lowWindSpeed AND height IS mediumTurbine AND wingLength IS smallWing THEN energyProduced IS veryLow;
-
-	RULE 5 : IF windSpeed IS lowWindSpeed AND height IS mediumTurbine AND wingLength IS mediumWing THEN energyProduced IS Low;
-
-	RULE 6 : IF windSpeed IS lowWindSpeed AND height IS mediumTurbine AND wingLength IS bigWing THEN energyProduced IS veryLow;
-
-	RULE 7 : IF windSpeed IS lowWindSpeed AND height IS bigTurbine AND wingLength IS smallWing THEN energyProduced IS veryLow;
-
-	RULE 8 : IF windSpeed IS lowWindSpeed AND height IS bigTurbine AND wingLength IS mediumWing THEN energyProduced IS Low;
-
-	RULE 9 : IF windSpeed IS lowWindSpeed AND height IS bigTurbine AND wingLength IS bigWing THEN energyProduced IS veryLow;
-
-	RULE 10 : IF windSpeed IS mediumWindSpeed AND height IS smallTurbine AND wingLength IS smallWing THEN energyProduced IS veryLow;
-
-	RULE 11 : IF windSpeed IS mediumWindSpeed AND height IS smallTurbine AND wingLength IS mediumWing THEN energyProduced IS Low;
-
-	RULE 12 : IF windSpeed IS mediumWindSpeed AND height IS smallTurbine AND wingLength IS bigWing THEN energyProduced IS middle;
-
-	RULE 13 : IF windSpeed IS mediumWindSpeed AND height IS mediumTurbine AND wingLength IS smallWing THEN energyProduced IS Low;
-
-	RULE 14 : IF windSpeed IS mediumWindSpeed AND height IS mediumTurbine AND wingLength IS mediumWing THEN energyProduced IS middle;
-
-	RULE 15 : IF windSpeed IS mediumWindSpeed AND height IS mediumTurbine AND wingLength IS bigWing THEN energyProduced IS High;
-
-	RULE 16 : IF windSpeed IS mediumWindSpeed AND height IS bigTurbine AND wingLength IS smallWing THEN energyProduced IS middle;
-
-	RULE 17 : IF windSpeed IS mediumWindSpeed AND height IS bigTurbine AND wingLength IS mediumWing THEN energyProduced IS High;
-
-	RULE 18 : IF windSpeed IS mediumWindSpeed AND height IS bigTurbine AND wingLength IS bigWing THEN energyProduced IS veryHigh;
-
-	RULE 19 : IF windSpeed IS highWindSpeed AND height IS smallTurbine AND wingLength IS smallWing THEN energyProduced IS middle;
-
-	RULE 20 : IF windSpeed IS highWindSpeed AND height IS smallTurbine AND wingLength IS mediumWing THEN energyProduced IS High;
-
-	RULE 21 : IF windSpeed IS highWindSpeed AND height IS smallTurbine AND wingLength IS bigWing THEN energyProduced IS veryHigh;
-
-	RULE 22 : IF windSpeed IS highWindSpeed AND height IS mediumTurbine AND wingLength IS smallWing THEN energyProduced IS High;
-
-	RULE 23 : IF windSpeed IS highWindSpeed AND height IS mediumTurbine AND wingLength IS mediumWing THEN energyProduced IS veryHigh;
-
-	RULE 24 : IF windSpeed IS highWindSpeed AND height IS mediumTurbine AND wingLength IS bigWing THEN energyProduced IS veryHigh;
-
-	RULE 25 : IF windSpeed IS highWindSpeed AND height IS bigTurbine AND wingLength IS smallWing THEN energyProduced IS High;
-
-	RULE 26 : IF windSpeed IS highWindSpeed AND height IS bigTurbine AND wingLength IS mediumWing THEN energyProduced IS veryHigh;
-
-	RULE 27 : IF windSpeed IS highWindSpeed AND height IS bigTurbine AND wingLength IS bigWing THEN energyProduced IS veryHigh;
 
 END_RULEBLOCK
 
